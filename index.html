@@ -54,6 +54,25 @@
         </ul>
     </nav>
   </header>
+    
+	<input type="range" id="volume" min="0" max="1" step="0.01" value="0.35">
+	<button onclick="playMenuMusic('./resources/th9.mp3')">
+	  Index Music
+	</button>
+
+
+	<script>
+	function playMenuMusic(soundFile) {
+	  const audio = new Audio(soundFile);
+		document.getElementById("volume").addEventListener("input", (new_volume) => {audio.volume = new_volume.target.value;});
+	  const volume = document.getElementById("volume").value;
+	  audio.volume = volume;
+	  audio.play();
+	}
+	</script>
+	
+	
+	
 
   <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Transgender_Pride_flag.svg" alt="trasgernder" style="width: 60px; position: fixed; right: 0; top: 0">
 
@@ -184,6 +203,7 @@
     <iframe width="420" height="315"
         src="https://www.youtube.com/embed/yvZP3YQNuRo?autoplay=1&mute=1&loop=1&playlist=yvZP3YQNuRo">
     </iframe>
+      <img src="resources/tkmiz.jpg" alt="mike! rebuild my kids!">
 
 	<link rel="stylesheet" href="styles/github.css">
 	<github>
