@@ -67,6 +67,10 @@ body:active {
   margin: 2px 2px;
 }
 
+@keyframes spin3d {
+        0%   { transform: perspective(600px) rotateY(0deg); }
+        100% { transform: perspective(600px) rotateY(360deg); }
+      }
 .kirky-img {
     position: relative;
     display: inline-block;
