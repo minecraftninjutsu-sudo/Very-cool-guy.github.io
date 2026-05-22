@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>title</title>
+    <link rel="stylesheet" href="styles/music.css">
     <link rel="stylesheet" href="styles/style.css">
     <link rel="stylesheet" href="styles/licensepopup.css">
     <link rel="stylesheet" href="styles/chat.css">
@@ -42,6 +43,7 @@
             <li><a href="doom-wasm/index.html" style="font-size:2rem">DOOM!</a></li>
             <li><a href="quavercorner.html">QUAVER CORNER!!!</a></li>
             <li><a href="stupidcat.html">Stupid Cat Clicker</a></li>
+          <li> <a href="randomMtgCard.html">Random mtg Card</a></li>
         </ul>
     </nav>
   </header>
@@ -64,6 +66,48 @@
 	
 	
 	
+<!-- BOOMBOX -->
+<!-- go to scripts/music.js to add more music! -->
+	  
+<div id="boombox" class="closed">
+
+    <div id="boom-toggle">🎵</div>
+
+    <div id="boom-content">
+
+        <div id="song-name">
+            loading...
+        </div>
+
+        <input type="range" id="seekbar" value="0">
+
+        <div id="time">
+            <span id="current-time">0:00</span>
+            <span id="duration">0:00</span>
+        </div>
+
+        <div id="controls">
+            <button id="prev">⏮</button>
+            <button id="play">⏯</button>
+            <button id="next">⏭</button>
+            <button id="shuffle">🔀</button>
+        </div>
+
+        <div id="volume-container">
+            🔊
+            <input type="range" id="volume" min="0" max="1" step="0.01">
+        </div>
+
+        <div id="playlist"></div>
+
+    </div>
+
+</div>
+  <div class="rk-rpanel">
+    <video width="200" height="355" autoplay loop muted>
+      <source src="resources/reze_iris_out.mp4" type="video/mp4">
+    </video>
+  </div>
 
     <h2 style="text-align: center;">
         SOME SOUNDS MAY BE LOUD BE CAUTIOUS
@@ -117,6 +161,8 @@
 
     </div>
 
+	  
+
       <!-- Changing the button position somehow breaks this idk how -->
       <button
         id="clear-clicks"
@@ -126,17 +172,12 @@
       </button>
 
     <br>
-    <a id="barrelroll" onclick="barrelrolltoggel()">DISABLE BARREL ROLL</a>
+    <button id="barrelroll" onclick="barrelrolltoggel()">DISABLE BARREL ROLL</button>    
     
     <marquee>
     <p>The missile knows where it is at all times. It knows this because it knows where it isn't. By subtracting where it is from where it isn't, or where it isn't from where it is (whichever is greater), it obtains a difference, or deviation. The guidance subsystem uses deviations to generate corrective commands to drive the missile from a position where it is to a position where it isn't, and arriving at a position where it wasn't, it now is. Consequently, the position where it is, is now the position that it wasn't, and it follows that the position that it was, is now the position that it isn't. In the event that the position that it is in is not the position that it wasn't, the system has acquired a variation, the variation being the difference between where the missile is, and where it wasn't. If variation is considered to be a significant factor, it too may be corrected by the GEA. However, the missile must also know where it was. The missile guidance computer scenario works as follows. Because a variation has modified some of the information the missile has obtained, it is not sure just where it is. However, it is sure where it isn't, within reason, and it knows where it was. It now subtracts where it should be from where it wasn't, or vice-versa, and by differentiating this from the algebraic sum of where it shouldn't be, and where it was, it is able to obtain the deviation and its variation, which is called error.</p>
     </marquee>
 
-    <audio src="resources/menuloop.mp3" type="audio/mp3" autoplay loop id="joeaudio1"></audio>
-    <script>
-      var audio = document.getElementById("joeaudio1");
-      audio.volume = 0.8;
-    </script>
 
     <video width="600" height="450" autoplay loop>
       <source src="resources/punchyou.mp4" type="video/mp4">
@@ -206,10 +247,7 @@
       <img src="resources/susie_dumbass.png" alt="Dumbass"> <!-- no fucking clue if ts is gonna work -->
       <img src="resources/tennadance.gif" alt="mike! rebuild my kids!">
     </div>
-
-	<h1>YURI!!!!!!!!!!!!!</h1>
-	<img src="https://i.redd.it/susie-and-noelle-during-chp-4-fanart-original-art-by-me-v0-71k4bylp6eaf1.jpg?width=1173&format=pjpg&auto=webp&s=21862cd5062539c827b9f85bf7c0fd57fe8b9c3e" style="width:500px;height:600px;">
-
+			
     <marquee>
     <p> mrrp mrow meow mrrp :3</p>
     <p>bendy was a little devil thing</p>
@@ -303,10 +341,6 @@
     <button id="leon_be_like" onclick="leon()">Leon:</button>
     <br>
 
-      <p>
-        happy birthday Nyun D. Hanayagi
-      </p>
-
       <p id="myImg" src="resources/bottomlicense.png" style="color:white;">get a bottom license!!</p>
 
       <div id="myModal" class="modal">
@@ -340,8 +374,6 @@
     <p>"Why couldn't Augustus Caesar be found in his house? <br> Because...he's Roman!"</p> <!-- added for my friend :D-->
   </div>
 
-	  <img src="resources/groundhog.gif" alt="how much dih">
-
   <p>Hewwo! :3</p>
   <p>Please be patient with me</p>
   <img src="resources/polish-patriots-check-post-sprawdzony-przez-polskich-patriotów.png" alt=":3">
@@ -357,7 +389,9 @@
         <span>This <strong style="color: yellow;">footer</strong> is <strong style="color: yellow;">pissing</strong> me off<br/>I am the original⠀⠀⠀⠀⠀⠀⠀⠀<strong style="color: yellow;">starwalker</strong></span><br/>
         <img src="resources/Starwalker_overworld.png" alt="starwalker"/>
       </div>
-			
+
+
+    <script src="scripts/music.js"></script>
     <script src="scripts/soundboard.js"></script>
   </body>
 </html>

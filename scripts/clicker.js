@@ -1,5 +1,4 @@
 //TODO add upgrades
-
 document.addEventListener("click", (ev) => {
     var clicks = localStorage.getItem("clicks");
     if (clicks == null) {
@@ -14,13 +13,12 @@ function createClick(x, y, clicks) {
     var counter = document.createElement("span");
     counter.innerHTML = clicks + " (ノω<。)ノ))☆.。";
     counter.style.position = "absolute";
-
     counter.style.top = y + "px";
     counter.style.left = x + "px";
     counter.style.color = "white";
     counter.style.fontSize = "20px";
     counter.style.pointerEvents = "none";
-
+    counter.classList.add("click-counter");
     document.getElementsByTagName("body")[0].appendChild(counter);
 }
 
@@ -31,7 +29,6 @@ function addClick(x, y, click) {
         y,
         click
     } ]));
-
 }
 
 function startUp() {
@@ -46,18 +43,12 @@ function startUp() {
     }
 }
 
-<!-- Clear Clicker -->
+
+
 function clearClicks() {
     localStorage.removeItem("clicks");
     localStorage.removeItem("clicks_at");
-
-    // remove all visible click counters
-    document.querySelectorAll("span").forEach((el) => {
-        if (el.innerHTML.includes("(ノω<。)ノ))☆.。")) {
-            el.remove();
-        }
-    });
-location.reload();
+    document.querySelectorAll(".click-counter").forEach(el => el.remove());
 }
 
 document.addEventListener("DOMContentLoaded", () => {
