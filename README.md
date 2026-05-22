@@ -8,3 +8,7 @@ Check out [the post](https://www.reddit.com/r/whenthe/comments/1tk7a71) that sta
 Check out your library books and return them on time!
 
 `git checkout`!
+
+remember to leave the site gayer then when you found it
+
+oh yeah and FIX BUGS PLZPLZPLZ
