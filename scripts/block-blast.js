@@ -15,7 +15,6 @@
     const EXPLODE_BLOCK_RADIUS = 80
     const MITOSIS_BALL_COUNT = 1 // Number of balls spawned by a mitosis block
     const PIERCING_BLOCK_LIMIT = 3 // Number of blocks a piercing ball can break
-
     /* --- PARTICLE SETTINGS --- */
     const NUM_BLOCK_BREAK_PARTICLES_PER_AXIS = 3 // Total particles is this value squared
     const NUM_EXPLOSION_PARTICLES = 25
@@ -26,6 +25,7 @@
     const PADDLE_WIDTH = 12
     const PADDLE_HEIGHT_INITIAL = 120
     const PADDLE_SPEED = 420
+    const INITIAL_DIAMOND_BONUS = 0
 
     /* --- BALL/PROJECTILE PROPERTIES --- */
     const BALL_RADIUS = 10
@@ -33,6 +33,10 @@
     const PROJECTILE_RADIUS = 6
     const PROJECTILE_SPEED = 320
     const PROJECTILE_DAMAGE = 20
+    const DIAMOND_RADIUS = 6
+    const DIAMOND_SPEED = 320
+    const DIAMOND_DAMAGE = 20 // Amount of additional paddle height given by diamonds
+
 
     const PROJECTILE_SPAWN_INTERVAL = Infinity // Seconds, currently disabled
     let projectileTimer = 0
@@ -44,12 +48,14 @@
     const PIERCING_BLOCK_WEIGHT = 1
     const MITOSIS_BLOCK_WEIGHT = 1
     const EXPLODE_BLOCK_WEIGHT = 1
+    const DIAMOND_BLOCK_WEIGHT = 0.5 //the light blue blocks
     const TOTAL_SPECIAL_WEIGHT =
         PROJECTILE_BLOCK_WEIGHT +
         BOMB_BLOCK_WEIGHT +
         PIERCING_BLOCK_WEIGHT +
         MITOSIS_BLOCK_WEIGHT +
-        EXPLODE_BLOCK_WEIGHT
+        EXPLODE_BLOCK_WEIGHT + 
+        DIAMOND_BLOCK_WEIGHT
 
     /* --- GAME STATE VARIABLES --- */
     const menuButton = { x: 500, y: 350, w: 200, h: 60, isHovering: false }
@@ -70,6 +76,8 @@
         currentScore = 0
         isGameOver = false
         paddle.y = (VIRTUAL_HEIGHT - PADDLE_HEIGHT_INITIAL) / 2
+        diamondPaddle.y = paddle.y
+        
         generateBlocks()
         livesLostCount = 0
         balls = []
@@ -77,6 +85,7 @@
         isPaused = false
         document.getElementById('pauseBtn').textContent = 'Pause'
         paddle.h = PADDLE_HEIGHT_INITIAL
+        diamondPaddle.h = paddle.h
         projectileTimer = 0
     }
 
@@ -197,6 +206,15 @@
         y: (VIRTUAL_HEIGHT - PADDLE_HEIGHT_INITIAL) / 2,
         w: PADDLE_WIDTH,
         h: PADDLE_HEIGHT_INITIAL,
+        dy: 0, // Velocity in y-direction
+    }
+    // diamodn paddle
+    let diamondPaddle = {
+        x: 30,
+        y: (VIRTUAL_HEIGHT - PADDLE_HEIGHT_INITIAL) / 2,
+        w: PADDLE_WIDTH,
+        h: PADDLE_HEIGHT_INITIAL,
+        bonus: INITIAL_DIAMOND_BONUS,
         dy: 0, // Velocity in y-direction
     }
 
@@ -323,6 +341,15 @@
                 MITOSIS_BLOCK_WEIGHT
             ) {
                 this.type = 'mitosis'
+            } else if (
+                rand <
+                PROJECTILE_BLOCK_WEIGHT +
+                BOMB_BLOCK_WEIGHT +
+                PIERCING_BLOCK_WEIGHT +
+                MITOSIS_BLOCK_WEIGHT + 
+                DIAMOND_BLOCK_WEIGHT
+            ){
+                this.type = 'diamond'
             } else {
                 this.type = 'explode'
             }
@@ -345,6 +372,8 @@
                 case 'explode':
                     ctx.fillStyle = '#ffcc66'
                     break
+                case 'diamond':
+                    ctx.fillStyle = '#32ddff'
                 default:
                     ctx.fillStyle = '#777'
                     break
@@ -405,6 +434,8 @@
                         case 'explode':
                             color = '#ffcc66'
                             break
+                        case 'diamond':
+                            color = '#32ddff'
                     }
                     const particle = new BlockBreakParticle(
                         px,
@@ -529,6 +560,22 @@
                         }
                     }, 250)
                     break
+                    
+                case 'diamond':
+                    // Spawn multiple diamonds aiming generally away from the paddle
+                    for (let i = 0; i < 2; i++) {
+                        const angle = generateAngle(MIN_BOUNCE_ANGLE) // Could be adjusted
+                        const diamond = new Ball(
+                            this.x + this.w / 2,
+                            this.y + this.h / 2,
+                            DIAMOND_RADIUS,
+                            'diamond',
+                        )
+                        diamond.vx = DIAMOND_SPEED * Math.cos(angle)
+                        diamond.vy = DIAMOND_SPEED * Math.sin(angle)
+                        balls.push(diamond)
+                    }
+                    break
             }
             currentScore++
         }
@@ -570,7 +617,7 @@
             }
 
             // Normal and Bomb ball collision action
-            if (ball.type !== 'projectile' && !ball.isDisabled) {
+            if (ball.type !== 'projectile' && ball.type !== 'diamond' && !ball.isDisabled) {
                 if (ball.type === 'bomb' && this.type !== 'mitosis') {
                     // Bomb explosion on impact
                     const bombCenterX = ball.x
@@ -724,6 +771,11 @@
                     ctx.arc(this.x, this.y, this.r * sizeFactor, 0, Math.PI * 2)
                     ctx.fill()
                     break
+                case 'diamond':
+                    ctx.fillStyle = '#32ddff'
+                    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2)
+                    ctx.fill()
+                    break
                 default: // 'normal' ball
                     ctx.fillStyle = '#ffffff'
                     ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2)
@@ -798,6 +850,8 @@
         paddle.y += paddle.dy * dt
         // Clamp paddle position within vertical bounds
         paddle.y = Math.max(0, Math.min(VIRTUAL_HEIGHT - paddle.h, paddle.y))
+        // Update diamond paddle
+        diamondPaddle.y = paddle.y
 
         // Update particles and remove expired ones
         for (let i = 0; i < brokenBlockParticles.length; i++) {
@@ -828,8 +882,45 @@
             }
             ball.update(dt)
 
+            
+            if(diamondPaddle.bonus > 0) {
+                // Diamond Paddle collision
+                if (rectCircleColliding(diamondPaddle, ball)) {
+                    // Calculate bounce angle based on relative hit position on the diamondPaddle
+                    const relativeY = (ball.y - (diamondPaddle.y + diamondPaddle.h / 2)) / (diamondPaddle.h / 2)
+                    const bounceAngle = relativeY * (Math.PI / 3) // Max angle of +/- 60 degrees
+    
+                    // Set velocity and reset state
+                    ball.vx = Math.cos(bounceAngle) * BALL_SPEED
+                    ball.vy = Math.sin(bounceAngle) * BALL_SPEED
+                    ball.x = diamondPaddle.x + diamondPaddle.w + ball.r + 0.1 // Reposition ball to prevent sticking
+                    ball.isDisabled = false
+                    ball.blocksHitCount = ball.type === 'piercing' ? 0 : Infinity // Reset block hit count
+    
+                    if (ball.type === 'projectile') {
+                        // Projectile hits diamondPaddle: diamondPaddle damage 
+                        diamondPaddle.bonus -= PROJECTILE_DAMAGE
+                        diamondPaddle.h = paddle.h + diamondPaddle.bonus
+                        balls.splice(i, 1)
+                        if (paddle.h <= 0) {
+                            livesLostCount++
+                            paddle.h = PADDLE_HEIGHT_INITIAL
+                            diamondPaddle.bonus = INITIAL_DIAMOND_BONUS
+                            paddle.y = (VIRTUAL_HEIGHT - PADDLE_HEIGHT_INITIAL) / 2
+                        }
+                        continue // Skip block collision check for this destroyed projectile
+                    }
+                    if (ball.type === 'diamond') {
+                        // Diamond hits paddle: paddle growth
+                        diamondPaddle.bonus += DIAMOND_DAMAGE
+                        diamondPaddle.h = paddle.h + diamondPaddle.bonus
+                        balls.splice(i, 1)
+                        continue // Skip block collision check for this destroyed diamond
+                    }
+                }
+            }
             // Paddle collision
-            if (rectCircleColliding(paddle, ball)) {
+            else if (rectCircleColliding(paddle, ball)) {
                 // Calculate bounce angle based on relative hit position on the paddle
                 const relativeY = (ball.y - (paddle.y + paddle.h / 2)) / (paddle.h / 2)
                 const bounceAngle = relativeY * (Math.PI / 3) // Max angle of +/- 60 degrees
@@ -851,6 +942,13 @@
                         paddle.y = (VIRTUAL_HEIGHT - PADDLE_HEIGHT_INITIAL) / 2
                     }
                     continue // Skip block collision check for this destroyed projectile
+                }
+                if (ball.type === 'diamond') {
+                    // Diamond hits paddle: paddle growth
+                    diamondPaddle.bonus += DIAMOND_DAMAGE
+                    diamondPaddle.h = paddle.h + diamondPaddle.bonus
+                    balls.splice(i, 1)
+                    continue // Skip block collision check for this destroyed diamond
                 }
             }
 
@@ -985,6 +1083,10 @@
         for (const block of blocks) {
             block.display()
         }
+
+        // Diamond Paddle
+        if(diamondPaddle.bonus) //meant to appear under the main paddle
+            drawRoundRect(diamondPaddle.x, diamondPaddle.y, diamondPaddle.w, diamondPaddle.h, 6, '#32ddff')
 
         // Paddle
         drawRoundRect(paddle.x, paddle.y, paddle.w, paddle.h, 6, '#e6e6e6')
