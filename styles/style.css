@@ -162,6 +162,7 @@ nav ul {
     list-style: none;
     display: flex;
     gap: 32px;
+    flex-wrap: wrap;
 }
 
 nav ul a {
@@ -197,4 +198,10 @@ nav ul a {
         right: -220px;
         opacity: 0;
     }
+}
+.movie-player {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  background: #000;
 }
